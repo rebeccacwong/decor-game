@@ -6,4 +6,5 @@ public interface IBuildingState
     void OnClickAction(Vector3Int gridPosition);
     void OnEscapeAction();
     void UpdateState(Vector3Int gridPosition);
+    void Rotate90DegreesCW();
 }

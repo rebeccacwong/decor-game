@@ -18,6 +18,11 @@ public class PreviewSystem : MonoBehaviour
 
     private Renderer cellIndicatorRenderer;
 
+    private Collider previewObjCollider;
+    private Quaternion originalRotation;
+    private int rotation = 0;
+    private Vector3 currPosition;
+
     // The offset to place the cellIndicator in the center of the cell.
     private Vector3 cellIndicatorOffset = new Vector3(0.5f, 0f, 0.5f);
 
@@ -30,20 +35,23 @@ public class PreviewSystem : MonoBehaviour
 
     public void StartShowingPlacementPreview(GameObject prefab, Vector2Int objSize, bool showTransparent)
     {
+        Debug.Log("Start showing preview");
         previewObject = Instantiate(prefab);
+        currPosition = previewObject.transform.position;
         if (showTransparent)
         {
             PrepareTransparentPreview(previewObject);
         }
-        PrepareCursor(objSize);
-        cellIndicator.SetActive(true);
-    }
 
-    public void StartShowingPlacementPreviewOfExistingObj(Vector2Int objSize)
-    {
+        previewObjCollider = previewObject.GetComponent<Collider>();
+        if (previewObjCollider == null)
+        {
+            throw new Exception($"Object {previewObject} is missing required Collider component!");
+        }
+        originalRotation = previewObject.transform.rotation;
+
         PrepareCursor(objSize);
         cellIndicator.SetActive(true);
-        ApplyFeedback(true);
     }
 
     private void PrepareTransparentPreview(GameObject previewObj)
@@ -103,6 +111,20 @@ public class PreviewSystem : MonoBehaviour
 
     private void MovePreviewObject(Vector3 position)
     {
+        // Reset to default
+        previewObject.transform.position = currPosition;
+        previewObject.transform.rotation = originalRotation;
+
+        // update new position and rotation
         previewObject.transform.position = new Vector3(position.x, previewYOffset, position.z);
+        Vector3 center = Utils.GetCenterOfColliderInWorldSpace(previewObjCollider, previewObject);
+        previewObject.transform.RotateAround(center, Vector3.up, rotation);
+
+        currPosition = position;
+    }
+
+    public void UpdatePreviewRotation(int newAngle)
+    {
+        rotation = newAngle;
     }
 }

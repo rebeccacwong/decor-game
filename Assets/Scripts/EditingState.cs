@@ -14,6 +14,7 @@ public class EditingState : IBuildingState
     GridData floorData;
     GridData furnitureData;
     ObjectPlacer objectPlacer;
+    int itemRotation = 0;
 
     public EditingState(
         Vector3Int initialGridPosition,
@@ -74,7 +75,10 @@ public class EditingState : IBuildingState
 
         // physically place the final obj and update gridData
         ObjectData data = database.objectsData[selectedObjectIndex];
-        int newGameObjId = objectPlacer.PlaceObject(data.Prefab, gridPosition);
+        int newGameObjId = objectPlacer.PlaceObject(data.Prefab,
+                                                    grid.CellToWorld(gridPosition),
+                                                    gridPosition,
+                                                    itemRotation);
         furnitureData.AddObjectAt(gridPosition, data.Size, data.ID, data.SwatchID, newGameObjId);
 
         previewSystem.UpdatePositionOfPreview(grid.CellToWorld(gridPosition), false);
@@ -83,7 +87,11 @@ public class EditingState : IBuildingState
     public void OnEscapeAction()
     {
         // Reset position back to original
-        int newGameObjId = objectPlacer.PlaceObject(database.objectsData[selectedObjectIndex].Prefab, initialGridPosition);
+        int newGameObjId = objectPlacer.PlaceObject(
+            database.objectsData[selectedObjectIndex].Prefab,
+            grid.CellToWorld(initialGridPosition),
+            initialGridPosition,
+            itemRotation);
 
         ObjectData data = database.objectsData[selectedObjectIndex];
         furnitureData.AddObjectAt(initialGridPosition, data.Size, data.ID, data.SwatchID, newGameObjId);
@@ -101,5 +109,11 @@ public class EditingState : IBuildingState
     {
         bool canPlace = CanPlaceStructure(gridPosition);
         previewSystem.UpdatePositionOfPreview(grid.CellToWorld(gridPosition), canPlace);
+    }
+
+    public void Rotate90DegreesCW()
+    {
+        itemRotation = (itemRotation + 90) % 360;
+        previewSystem.UpdatePreviewRotation(itemRotation);
     }
 }

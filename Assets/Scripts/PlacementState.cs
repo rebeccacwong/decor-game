@@ -14,6 +14,7 @@ public class PlacementState : IBuildingState
     GridData furnitureData;
     ObjectPlacer objectPlacer;
     bool isFirstPlacement;
+    int itemRotation = 0;
 
     public PlacementState(int iD,
                           Grid grid,
@@ -64,7 +65,7 @@ public class PlacementState : IBuildingState
         // Instantiate structure
         ObjectData data = database.objectsData[selectedObjectIndex];
 
-        int gameObjId = objectPlacer.PlaceObject(data.Prefab, grid.CellToWorld(gridPosition));
+        int gameObjId = objectPlacer.PlaceObject(data.Prefab, grid.CellToWorld(gridPosition), gridPosition, itemRotation);
 
         // TODO: make floor data as object index 0 and uncomment this line.
         // GridData selectedData = selectedObjectIndex == 0 ? floorData : furnitureData;
@@ -91,5 +92,11 @@ public class PlacementState : IBuildingState
     {
         bool canPlace = CanPlaceStructure(gridPosition, selectedObjectIndex);
         previewSystem.UpdatePositionOfPreview(grid.CellToWorld(gridPosition), canPlace);
+    }
+
+    public void Rotate90DegreesCW()
+    {
+        itemRotation = (itemRotation + 90) % 360;
+        previewSystem.UpdatePreviewRotation(itemRotation);
     }
 }

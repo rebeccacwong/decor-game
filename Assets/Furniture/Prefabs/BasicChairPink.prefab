@@ -25,15 +25,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 675dc869605d041d4af32dfcfd45af11, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.3484364
+      value: 2.7498415
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 675dc869605d041d4af32dfcfd45af11, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.00000047683716
+      value: 0.029040575
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 675dc869605d041d4af32dfcfd45af11, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.4138799
+      value: 0.9141948
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 675dc869605d041d4af32dfcfd45af11, type: 3}
       propertyPath: m_LocalRotation.w
@@ -103,3 +103,15 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.01627704, y: 0.015060242, z: 0.21542148}
   m_Center: {x: 0.008374133, y: -0.007350255, z: -0.10358571}
+--- !u!114 &8347918008126029107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6066675102314109755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6ce5f91bb35441b3b87e7744be78718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

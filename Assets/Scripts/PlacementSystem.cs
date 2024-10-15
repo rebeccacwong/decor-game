@@ -38,6 +38,7 @@ public class PlacementSystem : MonoBehaviour
         furnitureData = new();
 
         inputManager.OnItemHold += StartEditExistingStructureIfPossible;
+        inputManager.OnRightClick += RotateStructure;
     }
 
     // Update is called once per frame
@@ -138,8 +139,13 @@ public class PlacementSystem : MonoBehaviour
         Debug.Log($"Start editing {structure}");
         gridVisualization.SetActive(true);
 
-        // We assume that this gridPosition is bottom left since the prefabs have pivot points at bottom left.
-        Vector3Int gridPosition = grid.WorldToCell(structure.transform.position);
+        ItemData itemData = structure.GetComponent<ItemData>();
+        if (itemData == null)
+        {
+            throw new System.Exception($"Structure {structure} is missing the required ItemData script!");
+        }
+
+        Vector3Int gridPosition = itemData.gridPosition;
         gridPosition.y = 0;
         Debug.Log($"gridPosition: {gridPosition} from world position {structure.transform.position}");
         buildingState = new EditingState(gridPosition, grid, database, preview, floorData, furnitureData, objPlacer);
@@ -199,9 +205,17 @@ public class PlacementSystem : MonoBehaviour
         EndBuildState();
     }
 
-    private void StartRotatingStructure(GameObject structure)
+    private void RotateStructure()
     {
-        throw new NotImplementedException();
+        if (buildingState == null)
+        {
+            return;
+        }
+        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
+        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
+
+        buildingState.Rotate90DegreesCW();
+        buildingState.UpdateState(gridPosition);
     }
     #endregion
 }

@@ -15,7 +15,7 @@ public class InputManager : MonoBehaviour
     // Last selected map position
     private Vector3 lastPosition;
 
-    public event Action OnClicked, OnEscape, OnItemHold, OnDelete;
+    public event Action OnClicked, OnEscape, OnItemHold, OnDelete, OnRightClick;
 
     private float mouseHoldTime = 0f;
     private float minMouseHoldTimeForAction = 0.5f;
@@ -44,6 +44,10 @@ public class InputManager : MonoBehaviour
                     mouseHoldTime = -1;
                 }
             }
+        }
+        if (Input.GetMouseButtonDown(1))
+        {
+            OnRightClick?.Invoke();
         }
         if (Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace))
         {
