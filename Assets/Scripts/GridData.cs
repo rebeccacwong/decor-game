@@ -1,49 +1,74 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
+using UnityEditor;
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
+using static UnityEditor.PlayerSettings;
 
 public class GridData
 {
     Dictionary<Vector3Int, PlacementData> placedObjects = new();
 
-    public void AddObjectAt(Vector3Int gridPosition, Vector2Int objectSize, int ID, int swatchId, int gameObjId)
+    public void AddObjectAt(Vector3 worldPos, Vector2Int objectSize, int ID, int swatchId, int gameObjId, Grid grid)
     {
-        List<Vector3Int> positionsToOccupy = CalculatePositions(gridPosition, objectSize);
-        PlacementData data = new PlacementData(positionsToOccupy, ID, swatchId, gameObjId);
+        List<Vector3Int> positionsToOccupy = CalculateGridPositions(worldPos, objectSize, grid);
+        PlacementData data = new PlacementData(ID, swatchId, gameObjId);
         foreach (var pos in positionsToOccupy)
         {
             if (placedObjects.ContainsKey(pos))
             {
                 throw new Exception($"Dictionary already contains this cell position {pos}");
             }
-            Debug.Log($"Adding object with gameObj Id {gameObjId} to {pos}.");
             placedObjects[pos] = data;
         }
     }
 
-    /* 
-     * Calculates a list of grid positions that will be occupied 
-     * by an object of size objectSize.
+    /*
+     * Gets the gridPositions that the object occupies when it is centered at worldPos.
      */
-    private List<Vector3Int> CalculatePositions(Vector3Int gridPosition, Vector2Int objectSize)
+    private List<Vector3Int> CalculateGridPositions(Vector3 worldPos, Vector2Int objectSize, Grid grid)
     {
-        List<Vector3Int> positions = new();
-        for (int x = 0; x < objectSize.x; x++)
+        List<Vector3Int> positionsToOccupy = new();
+
+        Vector3 bottomPosition = new Vector3(worldPos.x - (objectSize.x / 2f), 0, worldPos.z - (objectSize.y / 2f));
+        Vector3 topPosition = new Vector3(worldPos.x + (objectSize.x / 2f), 0, worldPos.z + (objectSize.y / 2f));
+
+        Vector3Int bottomGridCell = grid.WorldToCell(bottomPosition);
+        Vector3Int topGridCell = grid.WorldToCell(topPosition);
+        bottomGridCell.y = 0;
+        topGridCell.y = 0;
+
+        if (topGridCell == bottomGridCell)
         {
-            for (int y = 0; y < objectSize.y; y++)
+            positionsToOccupy.Add(new Vector3Int(topGridCell.x, 0, topGridCell.z));
+        }
+        else
+        {
+            for (int x = bottomGridCell.x; x < topGridCell.x; x++)
             {
-                // position begins at bottom left corner of grid
-                positions.Add(gridPosition + new Vector3Int(x, 0, y));
+                for (int z = bottomGridCell.z; z < topGridCell.z; z++)
+                {
+                    positionsToOccupy.Add(new Vector3Int(x, 0, z));
+                }
             }
         }
-        return positions;
+        return positionsToOccupy;
     }
 
-    public bool CanPlaceObjectAt(Vector3Int gridPosition, Vector2Int objectSize)
+    private Vector3Int GetBottomLeftGridPos(Vector3 worldPos, Vector2Int objectSize, Grid grid)
     {
-        List<Vector3Int> positionsToOccupy = CalculatePositions(gridPosition, objectSize);
-        foreach(Vector3Int pos in positionsToOccupy)
+        Vector3 bottomPosition = new Vector3(worldPos.x - (objectSize.x / 2f), 0, worldPos.z - (objectSize.y / 2f));
+        Vector3Int bottomGridCell = grid.WorldToCell(bottomPosition);
+        bottomGridCell.y = 0;
+        return bottomGridCell;
+    }
+
+    public bool CanPlaceObjectAt(Vector3 worldPos, Vector2Int objectSize, Grid grid)
+    {
+        List<Vector3Int> positionsToOccupy = CalculateGridPositions(worldPos, objectSize, grid);
+        foreach (Vector3Int pos in positionsToOccupy)
         {
             if (placedObjects.ContainsKey(pos))
             {
@@ -53,8 +78,9 @@ public class GridData
         return true;
     }
 
-    public int GetObjectIdFromGridPosition(Vector3Int gridPosition)
+    public int GetObjectIdFromItemWorldPos(Vector3 worldPos, Vector2Int objectSize, Grid grid)
     {
+        Vector3Int gridPosition = GetBottomLeftGridPos(worldPos, objectSize, grid);
         if (placedObjects.ContainsKey(gridPosition))
         {
             return placedObjects[gridPosition].ID;
@@ -62,8 +88,9 @@ public class GridData
         return -1;
     }
 
-    public int GetGameObjectIdFromGridPosition(Vector3Int gridPosition)
+    public int GetGameObjectIdFromWorldPos(Vector3 worldPos, Vector2Int objectSize, Grid grid)
     {
+        Vector3Int gridPosition = GetBottomLeftGridPos(worldPos, objectSize, grid);
         if (placedObjects.ContainsKey(gridPosition))
         {
             return placedObjects[gridPosition].gameObjId;
@@ -71,25 +98,24 @@ public class GridData
         return -1;
     }
 
-    public void RemoveObjectAt(Vector3Int gridPosition)
+    public void RemoveObjectAt(Vector3 worldPos, Vector2Int objectSize, Grid grid)
     {
-        foreach (var pos in placedObjects[gridPosition].occupiedPositions)
+        List<Vector3Int> positionsToOccupy = CalculateGridPositions(worldPos, objectSize, grid);
+        foreach (var gridPos in positionsToOccupy)
         {
-            placedObjects.Remove(pos);
+            placedObjects.Remove(gridPos);
         }
     }
 }
 
 public class PlacementData
 {
-    public List<Vector3Int> occupiedPositions;
     public int ID { get; private set; }
     public int swatchId { get; private set; }
     public int gameObjId { get; private set; }
 
-    public PlacementData(List<Vector3Int> occupiedPositions, int iD, int swatchId, int gameObjId)
+    public PlacementData(int iD, int swatchId, int gameObjId)
     {
-        this.occupiedPositions = occupiedPositions;
         this.ID = iD;
         this.swatchId = swatchId;
         this.gameObjId = gameObjId;

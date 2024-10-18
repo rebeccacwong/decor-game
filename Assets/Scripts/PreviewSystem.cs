@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PreviewSystem : MonoBehaviour
 {
@@ -10,18 +11,18 @@ public class PreviewSystem : MonoBehaviour
 
     [SerializeField]
     private GameObject cellIndicator;
-    private GameObject previewObject;
 
     [SerializeField]
     private Material previewMaterialsPrefab;
     private Material previewMaterialInstance;
 
-    private Renderer cellIndicatorRenderer;
+    [SerializeField]
+    GameObject cube;
 
-    private Collider previewObjCollider;
-    private Quaternion originalRotation;
+    private Renderer cellIndicatorRenderer;
     private int rotation = 0;
-    private Vector3 currPosition;
+    private GameObject previewObject;
+    private ItemData previewItemData;
 
     // The offset to place the cellIndicator in the center of the cell.
     private Vector3 cellIndicatorOffset = new Vector3(0.5f, 0f, 0.5f);
@@ -30,27 +31,26 @@ public class PreviewSystem : MonoBehaviour
     {
         previewMaterialInstance = new Material(previewMaterialsPrefab);
         cellIndicator.SetActive(false);
+
         cellIndicatorRenderer = cellIndicator.GetComponentInChildren<Renderer>();
+        Debug.Assert(cellIndicatorRenderer != null);
     }
 
     public void StartShowingPlacementPreview(GameObject prefab, Vector2Int objSize, bool showTransparent)
     {
         Debug.Log("Start showing preview");
         previewObject = Instantiate(prefab);
-        currPosition = previewObject.transform.position;
+
         if (showTransparent)
         {
             PrepareTransparentPreview(previewObject);
         }
 
-        previewObjCollider = previewObject.GetComponent<Collider>();
-        if (previewObjCollider == null)
-        {
-            throw new Exception($"Object {previewObject} is missing required Collider component!");
-        }
-        originalRotation = previewObject.transform.rotation;
+        previewItemData = previewObject.GetComponent<ItemData>();
+        Debug.Assert(previewItemData != null, $"GameObject {previewObject} needs an ItemData component.");
+        previewItemData.setObjectSize(objSize);
 
-        PrepareCursor(objSize);
+        PrepareCursor();
         cellIndicator.SetActive(true);
     }
 
@@ -68,8 +68,9 @@ public class PreviewSystem : MonoBehaviour
         }
     }
 
-    private void PrepareCursor(Vector2Int objSize)
+    private void PrepareCursor()
     {
+        Vector2Int objSize = previewItemData.getObjectSize();
         if (objSize.x > 0 && objSize.y > 0)
         {
             cellIndicator.transform.localScale = new Vector3(objSize.x, 1, objSize.y);
@@ -83,13 +84,17 @@ public class PreviewSystem : MonoBehaviour
         {
             Destroy(previewObject);
         }
+
+        rotation = 0;
+        previewItemData = null;
+        cellIndicator.transform.rotation = Quaternion.identity;
         cellIndicator.SetActive(false);
     }
 
-    public void UpdatePositionOfPreview(Vector3 position, bool isPositionValid)
+    public void UpdatePositionOfPreview(Vector3 worldPos, bool isPositionValid)
     {
-        MovePreviewObject(position);
-        MoveCursor(position);
+        MovePreviewObject(worldPos);
+        MoveCursor(worldPos);
         ApplyFeedback(isPositionValid);
     }
 
@@ -104,27 +109,29 @@ public class PreviewSystem : MonoBehaviour
         cellIndicatorRenderer.material.color = cellIndicatorColor;
     }
 
-    private void MoveCursor(Vector3 position)
+    private void MoveCursor(Vector3 worldPos)
     {
-        cellIndicator.transform.position = position + cellIndicatorOffset;
+        cellIndicator.transform.position = worldPos;
     }
 
     private void MovePreviewObject(Vector3 position)
     {
-        // Reset to default
-        previewObject.transform.position = currPosition;
-        previewObject.transform.rotation = originalRotation;
-
-        // update new position and rotation
         previewObject.transform.position = new Vector3(position.x, previewYOffset, position.z);
-        Vector3 center = Utils.GetCenterOfColliderInWorldSpace(previewObjCollider, previewObject);
-        previewObject.transform.RotateAround(center, Vector3.up, rotation);
-
-        currPosition = position;
     }
 
-    public void UpdatePreviewRotation(int newAngle)
+    public (Vector2Int, int) UpdatePreviewRotation90DegCW()
     {
-        rotation = newAngle;
+        rotation = (rotation + 90) % 360;
+        previewItemData.UpdateItemDataAccordingToRotation(rotation);
+
+        previewObject.transform.Rotate(0, 0, 90f);
+        cellIndicator.transform.Rotate(0, 90f, 0);
+
+        return (previewItemData.getObjectSize(), rotation);
+    }
+
+    public GameObject GetPreviewObject()
+    {
+        return previewObject;
     }
 }

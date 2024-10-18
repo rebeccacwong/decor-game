@@ -100,7 +100,7 @@ public class PlacementSystem : MonoBehaviour
 
     private void PlaceStructure()
     {
-        if (inputManager.IsPointerOverUI())
+        if (inputManager.IsPointerOverUI() || buildingState == null)
         {
             return;
         }
@@ -145,10 +145,8 @@ public class PlacementSystem : MonoBehaviour
             throw new System.Exception($"Structure {structure} is missing the required ItemData script!");
         }
 
-        Vector3Int gridPosition = itemData.gridPosition;
-        gridPosition.y = 0;
-        Debug.Log($"gridPosition: {gridPosition} from world position {structure.transform.position}");
-        buildingState = new EditingState(gridPosition, grid, database, preview, floorData, furnitureData, objPlacer);
+        Vector3 worldPos = structure.transform.position;
+        buildingState = new EditingState(worldPos, grid, database, preview, floorData, furnitureData, objPlacer, itemData);
 
         inputManager.OnClicked += ModifyExistingStructure;
         inputManager.OnEscape += CancelEditingExistingStructure;

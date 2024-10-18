@@ -8,9 +8,9 @@ public class ObjectPlacer : MonoBehaviour
     [SerializeField]
     private Dictionary<int, GameObject> placedObjects = new();
 
-    public int PlaceObject(GameObject prefab, Vector3 position, Vector3Int gridPosition, int rotation)
+    public int PlaceObject(GameObject prefab, Vector3 worldPos, Vector2Int defaultObjectSize, int rotation)
     {
-        GameObject newObj = PlaceObjectInScene(prefab, position, rotation);
+        GameObject newObj = PlaceObjectInScene(prefab, worldPos, rotation);
 
         placedObjects.Add(newObj.GetInstanceID(), newObj);
 
@@ -19,18 +19,30 @@ public class ObjectPlacer : MonoBehaviour
         {
             throw new System.Exception($"Object of prefab {prefab} is missing the required ItemData script!");
         }
-        itemData.gridPosition = gridPosition;
+        itemData.setItemRotation(rotation);
+        itemData.setObjectSize(GetObjectSizeWhenRotated(defaultObjectSize, rotation));
+
         return newObj.GetInstanceID();
+    }
+
+    private static Vector2Int GetObjectSizeWhenRotated(Vector2Int defaultObjectSize, int rotation)
+    {
+        if (rotation == 90 || rotation == 270)
+        {
+            return new Vector2Int(defaultObjectSize.y, defaultObjectSize.x);
+        }
+        return defaultObjectSize;
     }
 
     /*
      * Helper method that places the prefab in the scene.
      * Returns the newly instantiated gameObject.
      */
-    private GameObject PlaceObjectInScene(GameObject prefab, Vector3 position, int rotation)
+    private GameObject PlaceObjectInScene(GameObject prefab, Vector3 worldPos, int rotation)
     {
         GameObject newObj = Instantiate(prefab);
-        newObj.transform.position = position;
+        newObj.transform.position = worldPos;
+        newObj.transform.Rotate(0, 0, rotation);
 
         Collider objCollider = newObj.GetComponent<Collider>();
         if (objCollider == null)
@@ -38,8 +50,7 @@ public class ObjectPlacer : MonoBehaviour
             throw new System.Exception($"GameObject {newObj} is missing a required Collider component!");
         }
 
-        Vector3 center = Utils.GetCenterOfColliderInWorldSpace(objCollider, newObj);
-        newObj.transform.RotateAround(center, Vector3.up, rotation);
+        //Utils.RotateObjectAroundCenter(objCollider, newObj, rotation);
         return newObj;
     }
 

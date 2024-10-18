@@ -19,7 +19,7 @@ MonoBehaviour:
     <SwatchColor1>k__BackingField: {r: 0.2735849, g: 0.19486472, b: 0.20202109, a: 1}
     <SwatchColor2>k__BackingField: {r: 0.6313726, g: 0.43137255, b: 0.25882354, a: 1}
     <Size>k__BackingField: {x: 1, y: 1}
-    <Prefab>k__BackingField: {fileID: 6066675102314109755, guid: 393711b6a1ce54d58b49cc781e248390, type: 3}
+    <Prefab>k__BackingField: {fileID: 9046408859467959197, guid: 87b8f95c41a7a4950a753ad78cdb372c, type: 3}
     <Image>k__BackingField: {fileID: 21300000, guid: 47247ab61894b489d80b3b9a2163d399, type: 3}
     <Category>k__BackingField: 0
   - <Name>k__BackingField: MarbleDiningTable
@@ -27,7 +27,7 @@ MonoBehaviour:
     <SwatchID>k__BackingField: 0
     <SwatchColor1>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
     <SwatchColor2>k__BackingField: {r: 0.6320754, g: 0.43302727, b: 0.25938946, a: 1}
-    <Size>k__BackingField: {x: 2, y: 1}
-    <Prefab>k__BackingField: {fileID: 6045244507132228260, guid: 3d470a101d78f461484a35c90c720b44, type: 3}
+    <Size>k__BackingField: {x: 1, y: 2}
+    <Prefab>k__BackingField: {fileID: 8916612786211022242, guid: 430a550373d884ee084567006f0f2e97, type: 3}
     <Image>k__BackingField: {fileID: 0}
     <Category>k__BackingField: 1
