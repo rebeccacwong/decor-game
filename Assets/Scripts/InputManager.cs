@@ -18,7 +18,10 @@ public class InputManager : MonoBehaviour
     public event Action OnClicked, OnEscape, OnItemHold, OnDelete, OnRightClick;
 
     private float mouseHoldTime = 0f;
-    private float minMouseHoldTimeForAction = 0.5f;
+    private float minMouseHoldTimeForAction = 1f;
+
+    [SerializeField]
+    CameraSystem cameraSystem;
 
 
     // Start is called before the first frame update
@@ -29,7 +32,34 @@ public class InputManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonUp(0))
+        {
+            mouseHoldTime = 0;
+            cameraSystem.EndCameraMouseDragIfNecessary();
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            cameraSystem.SwapCameraPerspective();
+        }
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                // SHIFT + CLICK
+                cameraSystem.BeginPanCamera();
+                return;
+            }
+        }
+        else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                // ALT + CLICK
+                cameraSystem.BeginRotateCamera();
+                return;
+            }
+        }
+        else if (Input.GetMouseButtonDown(0))
         {
             OnClicked?.Invoke();
         }
@@ -45,17 +75,13 @@ public class InputManager : MonoBehaviour
                 }
             }
         }
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.R))
         {
             OnRightClick?.Invoke();
         }
         if (Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace))
         {
             OnDelete?.Invoke();
-        }
-        if (Input.GetMouseButtonUp(0))
-        {
-            mouseHoldTime = 0;
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
