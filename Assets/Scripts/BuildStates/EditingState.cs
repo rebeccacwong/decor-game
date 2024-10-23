@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -122,6 +123,11 @@ public class EditingState : IBuildingState
 
         bool canPlace = CanPlaceStructure(snappedWorldPos);
         previewSystem.UpdatePositionOfPreview(snappedWorldPos, canPlace);
+    }
+
+    public void OnMouseUpAction(Vector3Int gridPosition)
+    {
+        throw new NotImplementedException();
     }
 
     public void Rotate90DegreesCW()

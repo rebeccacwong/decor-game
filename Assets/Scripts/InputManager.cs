@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 
 public class InputManager : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class InputManager : MonoBehaviour
     // Last selected map position
     private Vector3 lastPosition;
 
-    public event Action OnClicked, OnEscape, OnItemHold, OnDelete, OnRightClick;
+    public event Action OnClicked, OnEscape, OnItemHold, OnDelete, OnRightClick, OnMouseUp;
 
     private float mouseHoldTime = 0f;
     private float minMouseHoldTimeForAction = 1f;
@@ -35,6 +36,7 @@ public class InputManager : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             mouseHoldTime = 0;
+            OnMouseUp?.Invoke();
             cameraSystem.EndCameraMouseDragIfNecessary();
         }
         if (Input.GetKeyDown(KeyCode.Space))

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f96d19f70d4fe4677b1a4678a86b8c5f, type: 3}
-  m_Name: ObjectDatabase
+  m_Name: ObjectDataBaseSO
   m_EditorClassIdentifier: 
   objectsData:
   - <Name>k__BackingField: BasicChair

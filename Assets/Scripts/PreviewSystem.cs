@@ -98,6 +98,23 @@ public class PreviewSystem : MonoBehaviour
         ApplyFeedback(isPositionValid);
     }
 
+    public void UpdatePositionAndSizeOfPreview(Vector3 centerWorldPos, bool isPositionValid, Vector2Int objSize)
+    {
+        MovePreviewObject(centerWorldPos);
+        MoveCursor(centerWorldPos);
+        Utils.ScaleRoom(previewObject, objSize);
+        ApplyFeedback(isPositionValid);
+    }
+
+    private void ScalePreviewObject(Vector2Int objSize)
+    {
+        if (objSize.x > 0 && objSize.y > 0)
+        {
+            previewObject.transform.localScale = new Vector3(objSize.x, 1, objSize.y);
+            previewObject.GetComponentInChildren<Renderer>().material.mainTextureScale = objSize;
+        }
+    }
+
     private void ApplyFeedback(bool isPositionValid)
     {
         Color materialColor = isPositionValid ? Color.white : Color.red;

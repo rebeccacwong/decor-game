@@ -78,6 +78,24 @@ public class GridData
         return true;
     }
 
+    public bool CanPlaceObjectInGridRange(Vector3Int gridPos1, Vector3Int gridPos2)
+    {
+        Vector3Int bottomLeftCorner = Vector3Int.Min(gridPos1, gridPos2);
+        Vector3Int topRightCorner = Vector3Int.Max(gridPos1, gridPos2);
+
+        for (int x = bottomLeftCorner.x; x < topRightCorner.x; x++)
+        {
+            for (int z = bottomLeftCorner.z; z < topRightCorner.z; z++)
+            {
+                if (placedObjects.ContainsKey(new Vector3Int(x, 0, z)))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public int GetObjectIdFromItemWorldPos(Vector3 worldPos, Vector2Int objectSize, Grid grid)
     {
         Vector3Int gridPosition = GetBottomLeftGridPos(worldPos, objectSize, grid);

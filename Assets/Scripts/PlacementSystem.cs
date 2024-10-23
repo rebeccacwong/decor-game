@@ -30,15 +30,16 @@ public class PlacementSystem : MonoBehaviour
 
     private IBuildingState buildingState;
 
+    private bool enableFurniturePlacement;
+    private bool enableBuildPlacement;
+
+
     // Start is called before the first frame update
     void Start()
     {
         EndBuildState();
         floorData = new();
         furnitureData = new();
-
-        inputManager.OnItemHold += StartEditExistingStructureIfPossible;
-        inputManager.OnRightClick += RotateStructure;
     }
 
     // Update is called once per frame
@@ -57,6 +58,85 @@ public class PlacementSystem : MonoBehaviour
             buildingState.UpdateState(gridPosition);
             lastDetectedPosition = gridPosition;
         }
+    }
+
+    #region Build / Furniture mode controls
+    public void EnableFurniturePlacement()
+    {
+        DisableBuildPlacement();
+
+        enableFurniturePlacement = true;
+
+        inputManager.OnItemHold += StartEditExistingStructureIfPossible;
+        inputManager.OnRightClick += RotateStructure;
+    }
+
+    private void DisableFurniturePlacement()
+    {
+        enableFurniturePlacement = false;
+        buildingState = null;
+
+        inputManager.OnItemHold -= StartEditExistingStructureIfPossible;
+        inputManager.OnRightClick -= RotateStructure;
+    }
+
+    public void EnableBuildPlacement()
+    {
+        DisableFurniturePlacement();
+        enableBuildPlacement = true;
+    }
+
+    private void DisableBuildPlacement()
+    {
+        enableBuildPlacement = false;
+        buildingState = null;
+    }
+    #endregion
+
+    private void HandleClickAndWaitForDrag()
+    {
+        if (inputManager.IsPointerOverUI())
+        {
+            return;
+        }
+
+        if (buildingState == null)
+        {
+            return;
+        }
+
+        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
+        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
+        buildingState.OnClickAction(gridPosition);
+
+        inputManager.OnMouseUp += HandleMouseThenEndBuildState;
+    }
+
+    private void HandleMouseThenEndBuildState()
+    {
+        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
+        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
+
+        buildingState.OnMouseUpAction(gridPosition);
+
+        EndBuildState();
+    }
+
+    private void HandleClickThenEndBuildState()
+    {
+        if (inputManager.IsPointerOverUI() || buildingState == null)
+        {
+            return;
+        }
+        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
+        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
+
+        buildingState.OnClickAction(gridPosition);
+
+        inputManager.OnClicked -= HandleClickThenEndBuildState;
+        inputManager.OnDelete -= EndBuildState;
+
+        EndBuildState();
     }
 
     /*
@@ -78,8 +158,7 @@ public class PlacementSystem : MonoBehaviour
         buildingState = null;
     }
 
-    #region PlacementState methods
-    public void StartPlacement(int ID, bool isFirstPlacement)
+    public void StartFurniturePlacement(int ID, bool isFirstPlacement)
     {
         EndBuildState();
         gridVisualization.SetActive(true);
@@ -93,29 +172,22 @@ public class PlacementSystem : MonoBehaviour
             objPlacer,
             isFirstPlacement);
 
-        inputManager.OnClicked += PlaceStructure;
+        inputManager.OnClicked += HandleClickThenEndBuildState;
         inputManager.OnDelete += EndBuildState;
         inputManager.OnEscape += EndBuildState;
     }
 
-    private void PlaceStructure()
+    public void StartRoomPlacement(int roomId)
     {
-        if (inputManager.IsPointerOverUI() || buildingState == null)
-        {
-            return;
-        }
-        Vector3 mousePosition = inputManager.GetSelectedMapPosition();
-        Vector3Int gridPosition = grid.WorldToCell(mousePosition);
-
-        buildingState.OnClickAction(gridPosition);
-
-        inputManager.OnClicked -= PlaceStructure;
-        inputManager.OnDelete -= EndBuildState;
-
         EndBuildState();
-    }
-    #endregion
+        gridVisualization.SetActive(true);
 
+        buildingState = null;
+
+        inputManager.OnClicked += HandleClickAndWaitForDrag;
+        inputManager.OnDelete += EndBuildState;
+        inputManager.OnEscape += EndBuildState;
+    }
 
     #region EditingState methods
     /*

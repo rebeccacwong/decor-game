@@ -1,14 +1,24 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BuildInventoryUIManager : MonoBehaviour
 {
+    private enum BuildMode
+    {
+        Build, Furnish
+    }
 
     [SerializeField]
     [Tooltip("The object database of furnishings.")]
-    private ObjectDatabaseSO database;
+    private ObjectDatabaseSO furnitureDatabase;
+
+    [SerializeField]
+    [Tooltip("The object database of build assets.")]
+    private ObjectDatabaseSO buildDatabase;
 
     [SerializeField]
     [Tooltip("The UI gameobject that is the parent of the inventory content.")]
@@ -21,25 +31,63 @@ public class BuildInventoryUIManager : MonoBehaviour
     [SerializeField]
     private PlacementSystem placementSystem;
 
-    Dictionary<int, int> objIdToNumSwatches = new();
-    
+    [SerializeField]
+    [Tooltip("The build mode buttons. First should be build, then furnish mode.")]
+    private List<BuildModeButton> buildModeButtons;
+
+    private Dictionary<int, int> objIdToNumSwatches = new();
+
+    private BuildMode activeMode = BuildMode.Build;
+
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        foreach (ObjectData obj in database.objectsData)
+        // Start at build mode by default.
+        SwitchToBuildMode();
+    }
+
+    public void SwitchToFurnishMode()
+    {
+        ClearContent();
+
+        buildModeButtons[(int)activeMode]?.MarkButtonAsNotSelected();
+        activeMode = BuildMode.Furnish;
+        buildModeButtons[(int)activeMode]?.MarkButtonAsSelected();
+
+        foreach (ObjectData obj in furnitureDatabase.objectsData)
         {
-            CreateButtonInInventory(obj);
+            CreateOptionInInventory(obj);
+        }
+        placementSystem.EnableFurniturePlacement();
+    }
+
+    public void SwitchToBuildMode()
+    {
+        ClearContent();
+
+        buildModeButtons[(int)activeMode]?.MarkButtonAsNotSelected();
+        activeMode = BuildMode.Build;
+        buildModeButtons[(int)activeMode]?.MarkButtonAsSelected();
+
+        foreach (ObjectData obj in buildDatabase.objectsData)
+        {
+            CreateOptionInInventory(obj);
+        }
+        placementSystem.EnableBuildPlacement();
+    }
+
+    private void ClearContent()
+    {
+        objIdToNumSwatches.Clear();
+        foreach (Transform child in contentParent.transform)
+        {
+            GameObject elem = child.gameObject;
+            Destroy(elem);
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // TODO: add a filter the objects in the database to the category and show the objects
-    }
-
-    void CreateButtonInInventory(ObjectData obj)
+    private void CreateOptionInInventory(ObjectData obj)
     {
         if (objIdToNumSwatches.ContainsKey(obj.ID))
         {
@@ -53,12 +101,13 @@ public class BuildInventoryUIManager : MonoBehaviour
             objIdToNumSwatches[obj.ID] = 1;
         }
 
+        Debug.Log($"Creating object {obj.Name}");
         GameObject buttonGameObj = Instantiate(inventoryButtonPrefab, contentParent.transform);
 
         Button button = buttonGameObj.GetComponent<Button>();
 
         int id = obj.ID;
-        button.onClick.AddListener(delegate { placementSystem.StartPlacement(id, true); });
+        button.onClick.AddListener(delegate { placementSystem.StartFurniturePlacement(id, true); });
 
         Image img = buttonGameObj.transform.Find("Image")?.GetComponent<Image>();
         if (obj.Image)

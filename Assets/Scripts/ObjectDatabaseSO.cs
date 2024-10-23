@@ -6,7 +6,7 @@ using System;
 [System.Serializable]
 public enum ItemCategory
 {
-    DiningChairs, DiningTables, Beds, Sofas
+    Rooms, Windows, Walls, Floors, Doors, DiningChairs, DiningTables, Beds, Sofas,
 }
 
 [CreateAssetMenu]

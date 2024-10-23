@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.IMGUI.Controls;
@@ -100,10 +101,16 @@ public class PlacementState : IBuildingState
         previewSystem.UpdatePositionOfPreview(snappedWorldPos, canPlace);
     }
 
+    public void OnMouseUpAction(Vector3Int gridPosition)
+    {
+        throw new NotImplementedException();
+    }
+
     public void Rotate90DegreesCW()
     {
         var output = previewSystem.UpdatePreviewRotation90DegCW();
         updatedObjectSize = output.Item1;
         itemRotation = output.Item2;
     }
+
 }
