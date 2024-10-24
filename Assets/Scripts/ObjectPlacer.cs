@@ -28,7 +28,7 @@ public class ObjectPlacer : MonoBehaviour
     public int PlaceRoom(GameObject roomPrefab, Vector3 worldPos, Vector2Int dimensions)
     {
         GameObject newRoom = PlaceObjectInScene(roomPrefab, worldPos, 0);
-        Utils.ScaleRoom(newRoom, dimensions);
+        Utils.ScaleRoom(newRoom, worldPos, dimensions);
 
         placedObjects.Add(newRoom.GetInstanceID(), newRoom);
 

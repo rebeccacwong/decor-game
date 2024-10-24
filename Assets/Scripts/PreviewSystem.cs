@@ -21,6 +21,8 @@ public class PreviewSystem : MonoBehaviour
     private GameObject previewObject;
     private ItemData previewItemData;
 
+    // TODO: Show cellIndicator in FRONT of the placed objects
+
     // The offset to place the cellIndicator in the center of the cell.
     private Vector3 cellIndicatorOffset = new Vector3(0.5f, 0f, 0.5f);
 
@@ -96,9 +98,10 @@ public class PreviewSystem : MonoBehaviour
 
     public void UpdatePositionAndSizeOfPreview(Vector3 centerWorldPos, bool isPositionValid, Vector2Int objSize)
     {
-        Utils.ScaleRoom(previewObject, objSize);
-
         MovePreviewObject(centerWorldPos);
+
+        Utils.ScaleRoom(previewObject, centerWorldPos, objSize);
+
         PrepareCursor(objSize);
         MoveCursor(centerWorldPos);
         ApplyFeedback(isPositionValid);

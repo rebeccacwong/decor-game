@@ -48,10 +48,6 @@ public class RoomBuildState : IBuildingState
 
     public void OnClickAction(Vector3Int gridPosition)
     {
-        // A click indicates the user is beginning to draw a room.
-
-        // TODO: Snap to the closest grid point instead of just using the bottom left
-
         gridStartPosition = gridPosition;
         isUserDrawing = true;
 
@@ -80,7 +76,6 @@ public class RoomBuildState : IBuildingState
             Vector2Int objSize = GetSizeFromGridRange(bottomLeft, topRight);
             Vector3 worldPos = GetWorldPosCenterFromGridRange(bottomLeft, topRight);
 
-            Debug.Log($"Object size {objSize}, centered at {worldPos}, corners {bottomLeft} {topRight}");
             previewSystem.UpdatePositionAndSizeOfPreview(worldPos, canPlace, objSize);
         }
         else
@@ -98,11 +93,8 @@ public class RoomBuildState : IBuildingState
     public void OnMouseUpAction(Vector3Int gridPosition)
     {
         isUserDrawing = false;
-        Debug.Log("Onclick");
         if (floorData.CanPlaceObjectInGridRange(gridStartPosition, gridPosition))
         {
-            Debug.Log("placing item");
-
             Vector3Int bottomLeft = getBottomLeftCorner(gridStartPosition, gridPosition);
             Vector3Int topRight = getTopRightCorner(gridStartPosition, gridPosition);
 

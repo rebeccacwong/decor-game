@@ -46,45 +46,39 @@ public static class Utils
         return snapped;
     }
 
-    public static void ScaleRoom(GameObject room, Vector2Int objSize)
+    public static void ScaleRoom(GameObject room, Vector3 centerWorldPos, Vector2Int objSize)
     {
         // TODO: Update box collider????
         float roomLengthOffset = 0.15f;
-        int diffInDimensions = Mathf.Abs(objSize.x - objSize.y);
+
+        //room.transform.localScale = new Vector3(objSize.x, room.transform.localScale.y, objSize.y);
+
+        foreach (Transform child in room.transform)
+        {
+            if (child.name.Contains("XAxisWall"))
+            {
+                child.localScale = new Vector3(objSize.x + roomLengthOffset, child.localScale.y, child.localScale.z);
+                int offset = (child.name == "XAxisWall1") ? -1 : 1;
+                child.transform.position = new Vector3(child.transform.position.x, child.transform.position.y, centerWorldPos.z + (objSize.y / 2f) * offset);
+            }
+            else if (child.name.Contains("ZAxisWall"))
+            {
+                child.localScale = new Vector3(child.localScale.x, child.localScale.y, objSize.y + roomLengthOffset);
+                int offset = (child.name == "ZAxisWall1") ? 1 : -1;
+                child.transform.position = new Vector3(centerWorldPos.x + (objSize.x / 2f) * offset, child.transform.position.y, child.transform.position.z);
+            }
+            else if (child.name == "Floor")
+            {
+                child.localScale = new Vector3(objSize.x, child.localScale.y, objSize.y);
+            }
+            else
+            {
+                Debug.LogWarning($"Unexpected child of {room} found, called {child.name}");
+            }
+        }
 
         ItemData itemData = room.GetComponent<ItemData>();
         Debug.Assert(itemData != null);
-        Vector2Int currObjSize = itemData.getObjectSize();
-
-        room.transform.localScale = new Vector3(objSize.x, room.transform.localScale.y, objSize.y);
-
-        //foreach(Transform child in room.transform)
-        //{
-        //    if (child.name.Contains("XAxisWall"))
-        //    {
-        //        child.localScale = new Vector3(objSize.x + roomLengthOffset, child.localScale.y, child.localScale.z);
-        //        int offset = (child.name == "XAxisWall1") ? -1 : 1;
-        //        child.transform.position = new Vector3(child.transform.position.x, child.transform.position.y, objSize.y / 2 * offset);
-        //    }
-        //    else if (child.name.Contains("ZAxisWall"))
-        //    {
-        //        child.localScale = new Vector3(child.localScale.x, child.localScale.y, objSize.y + roomLengthOffset);
-        //        if (objSize.x < objSize.y)
-        //        {
-        //            int offset = (child.name == "ZAxisWall1") ? 1 : -1;
-        //            child.transform.position += new Vector3(objSize.y / 2 * offset, child.transform.position.y, child.transform.position.z);
-        //        }
-        //    }
-        //    else if (child.name == "Floor")
-        //    {
-        //        child.localScale = new Vector3(objSize.x, child.localScale.y, objSize.y);
-        //    }
-        //    else
-        //    {
-        //        Debug.LogWarning($"Unexpected child of {room} found, called {child.name}");
-        //    }
-        //}
-
         itemData.setObjectSize(objSize);
 
     }
