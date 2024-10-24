@@ -13,7 +13,10 @@ public class PlacementSystem : MonoBehaviour
     private Grid grid;
 
     [SerializeField]
-    private ObjectDatabaseSO database;
+    private ObjectDatabaseSO furnitureDatabase;
+
+    [SerializeField]
+    private ObjectDatabaseSO buildDatabase;
 
     [SerializeField]
     private GameObject gridVisualization;
@@ -105,15 +108,27 @@ public class PlacementSystem : MonoBehaviour
             return;
         }
 
+        Debug.Log("Handle click and wait for drag");
+
+        inputManager.OnMouseUp += HandleMouseUpThenEndBuildState;
+        inputManager.OnClicked -= HandleClickAndWaitForDrag;
+
         Vector3 mousePosition = inputManager.GetSelectedMapPosition();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
         buildingState.OnClickAction(gridPosition);
-
-        inputManager.OnMouseUp += HandleMouseThenEndBuildState;
     }
 
-    private void HandleMouseThenEndBuildState()
+    private void HandleMouseUpThenEndBuildState()
     {
+        if (buildingState == null)
+        {
+            return;
+        }
+
+        Debug.Log("Handle mouse location then end build state");
+
+        inputManager.OnMouseUp -= HandleMouseUpThenEndBuildState;
+
         Vector3 mousePosition = inputManager.GetSelectedMapPosition();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
 
@@ -134,7 +149,6 @@ public class PlacementSystem : MonoBehaviour
         buildingState.OnClickAction(gridPosition);
 
         inputManager.OnClicked -= HandleClickThenEndBuildState;
-        inputManager.OnDelete -= EndBuildState;
 
         EndBuildState();
     }
@@ -154,6 +168,7 @@ public class PlacementSystem : MonoBehaviour
         lastDetectedPosition = Vector3Int.zero;
 
         inputManager.OnEscape -= EndBuildState;
+        inputManager.OnDelete += EndBuildState;
 
         buildingState = null;
     }
@@ -166,7 +181,7 @@ public class PlacementSystem : MonoBehaviour
         buildingState = new PlacementState(ID,
             grid,
             preview,
-            database,
+            furnitureDatabase,
             floorData,
             furnitureData,
             objPlacer,
@@ -182,7 +197,7 @@ public class PlacementSystem : MonoBehaviour
         EndBuildState();
         gridVisualization.SetActive(true);
 
-        buildingState = null;
+        buildingState = new RoomBuildState(roomId, grid, preview, buildDatabase, floorData, objPlacer);
 
         inputManager.OnClicked += HandleClickAndWaitForDrag;
         inputManager.OnDelete += EndBuildState;
@@ -218,7 +233,7 @@ public class PlacementSystem : MonoBehaviour
         }
 
         Vector3 worldPos = structure.transform.position;
-        buildingState = new EditingState(worldPos, grid, database, preview, floorData, furnitureData, objPlacer, itemData);
+        buildingState = new EditingState(worldPos, grid, furnitureDatabase, preview, floorData, furnitureData, objPlacer, itemData);
 
         inputManager.OnClicked += ModifyExistingStructure;
         inputManager.OnEscape += CancelEditingExistingStructure;

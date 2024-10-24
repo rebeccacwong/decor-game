@@ -25,6 +25,23 @@ public class ObjectPlacer : MonoBehaviour
         return newObj.GetInstanceID();
     }
 
+    public int PlaceRoom(GameObject roomPrefab, Vector3 worldPos, Vector2Int dimensions)
+    {
+        GameObject newRoom = PlaceObjectInScene(roomPrefab, worldPos, 0);
+        Utils.ScaleRoom(newRoom, dimensions);
+
+        placedObjects.Add(newRoom.GetInstanceID(), newRoom);
+
+        ItemData itemData = newRoom.GetComponent<ItemData>();
+        if (itemData == null)
+        {
+            throw new System.Exception($"Object of prefab {roomPrefab} is missing the required ItemData script!");
+        }
+        itemData.setObjectSize(dimensions);
+
+        return newRoom.GetInstanceID();
+    }
+
     private static Vector2Int GetObjectSizeWhenRotated(Vector2Int defaultObjectSize, int rotation)
     {
         if (rotation == 90 || rotation == 270)

@@ -16,9 +16,6 @@ public class PreviewSystem : MonoBehaviour
     private Material previewMaterialsPrefab;
     private Material previewMaterialInstance;
 
-    [SerializeField]
-    GameObject cube;
-
     private Renderer cellIndicatorRenderer;
     private int rotation = 0;
     private GameObject previewObject;
@@ -50,7 +47,7 @@ public class PreviewSystem : MonoBehaviour
         Debug.Assert(previewItemData != null, $"GameObject {previewObject} needs an ItemData component.");
         previewItemData.setObjectSize(objSize);
 
-        PrepareCursor();
+        PrepareCursor(objSize);
         cellIndicator.SetActive(true);
     }
 
@@ -68,9 +65,8 @@ public class PreviewSystem : MonoBehaviour
         }
     }
 
-    private void PrepareCursor()
+    private void PrepareCursor(Vector2Int objSize)
     {
-        Vector2Int objSize = previewItemData.getObjectSize();
         if (objSize.x > 0 && objSize.y > 0)
         {
             cellIndicator.transform.localScale = new Vector3(objSize.x, 1, objSize.y);
@@ -100,40 +96,28 @@ public class PreviewSystem : MonoBehaviour
 
     public void UpdatePositionAndSizeOfPreview(Vector3 centerWorldPos, bool isPositionValid, Vector2Int objSize)
     {
-        MovePreviewObject(centerWorldPos);
-        MoveCursor(centerWorldPos);
         Utils.ScaleRoom(previewObject, objSize);
+
+        MovePreviewObject(centerWorldPos);
+        PrepareCursor(objSize);
+        MoveCursor(centerWorldPos);
         ApplyFeedback(isPositionValid);
     }
 
-    private void ScalePreviewObject(Vector2Int objSize)
+    public void ShowEditCursor()
     {
-        if (objSize.x > 0 && objSize.y > 0)
-        {
-            previewObject.transform.localScale = new Vector3(objSize.x, 1, objSize.y);
-            previewObject.GetComponentInChildren<Renderer>().material.mainTextureScale = objSize;
-        }
+        cellIndicator.SetActive(true);
+        PrepareCursor(new Vector2Int(1, 1));
     }
 
-    private void ApplyFeedback(bool isPositionValid)
+    public void HideEditCursor()
     {
-        Color materialColor = isPositionValid ? Color.white : Color.red;
-        materialColor.a = 0.8f;
-        previewMaterialInstance.color = materialColor;
-
-        Color cellIndicatorColor = isPositionValid ? Color.yellow : Color.red;
-        cellIndicatorColor.a = 0.8f;
-        cellIndicatorRenderer.material.color = cellIndicatorColor;
+        cellIndicator.SetActive(false);
     }
 
-    private void MoveCursor(Vector3 worldPos)
+    public void MoveCursor(Vector3 worldPos)
     {
         cellIndicator.transform.position = worldPos;
-    }
-
-    private void MovePreviewObject(Vector3 position)
-    {
-        previewObject.transform.position = new Vector3(position.x, previewYOffset, position.z);
     }
 
     public (Vector2Int, int) UpdatePreviewRotation90DegCW()
@@ -150,5 +134,21 @@ public class PreviewSystem : MonoBehaviour
     public GameObject GetPreviewObject()
     {
         return previewObject;
+    }
+
+    private void ApplyFeedback(bool isPositionValid)
+    {
+        Color materialColor = isPositionValid ? Color.white : Color.red;
+        materialColor.a = 0.8f;
+        previewMaterialInstance.color = materialColor;
+
+        Color cellIndicatorColor = isPositionValid ? Color.yellow : Color.red;
+        cellIndicatorColor.a = 0.8f;
+        cellIndicatorRenderer.material.color = cellIndicatorColor;
+    }
+
+    private void MovePreviewObject(Vector3 position)
+    {
+        previewObject.transform.position = new Vector3(position.x, previewYOffset, position.z);
     }
 }

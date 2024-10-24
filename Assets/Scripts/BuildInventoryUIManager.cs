@@ -57,7 +57,7 @@ public class BuildInventoryUIManager : MonoBehaviour
 
         foreach (ObjectData obj in furnitureDatabase.objectsData)
         {
-            CreateOptionInInventory(obj);
+            CreateFurnitureOptionInInventory(obj);
         }
         placementSystem.EnableFurniturePlacement();
     }
@@ -72,7 +72,7 @@ public class BuildInventoryUIManager : MonoBehaviour
 
         foreach (ObjectData obj in buildDatabase.objectsData)
         {
-            CreateOptionInInventory(obj);
+            CreateBuildOptionInInventory(obj);
         }
         placementSystem.EnableBuildPlacement();
     }
@@ -87,7 +87,7 @@ public class BuildInventoryUIManager : MonoBehaviour
         }
     }
 
-    private void CreateOptionInInventory(ObjectData obj)
+    private void CreateFurnitureOptionInInventory(ObjectData obj)
     {
         if (objIdToNumSwatches.ContainsKey(obj.ID))
         {
@@ -101,7 +101,6 @@ public class BuildInventoryUIManager : MonoBehaviour
             objIdToNumSwatches[obj.ID] = 1;
         }
 
-        Debug.Log($"Creating object {obj.Name}");
         GameObject buttonGameObj = Instantiate(inventoryButtonPrefab, contentParent.transform);
 
         Button button = buttonGameObj.GetComponent<Button>();
@@ -109,6 +108,27 @@ public class BuildInventoryUIManager : MonoBehaviour
         int id = obj.ID;
         button.onClick.AddListener(delegate { placementSystem.StartFurniturePlacement(id, true); });
 
+        UpdateButtonImage(buttonGameObj, obj);
+    }
+
+    private void CreateBuildOptionInInventory(ObjectData obj)
+    {
+        GameObject buttonGameObj = Instantiate(inventoryButtonPrefab, contentParent.transform);
+
+        Button button = buttonGameObj.GetComponent<Button>();
+
+        int id = obj.ID;
+        if (obj.Category == ItemCategory.Rooms)
+        {
+            button.onClick.AddListener(delegate { placementSystem.StartRoomPlacement(id); });
+        }
+        // TODO: Add support for other categories
+
+        UpdateButtonImage(buttonGameObj, obj);
+    }
+
+    private void UpdateButtonImage(GameObject buttonGameObj, ObjectData obj)
+    {
         Image img = buttonGameObj.transform.Find("Image")?.GetComponent<Image>();
         if (obj.Image)
         {
