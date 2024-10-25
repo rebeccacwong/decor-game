@@ -10,11 +10,11 @@ public class ItemData : MonoBehaviour
 
     public void UpdateItemDataAccordingToRotation(int newRotation)
     {
-        if (newRotation == rotation + 90)
+        if (newRotation == (rotation + 90) % 360)
         {
             objectSize = new Vector2Int(objectSize.y, objectSize.x);
         }
-        newRotation = rotation;
+        rotation = newRotation;
     }
 
     public int getItemRotation()

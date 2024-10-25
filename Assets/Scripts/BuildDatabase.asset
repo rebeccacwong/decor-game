@@ -20,5 +20,5 @@ MonoBehaviour:
     <SwatchColor2>k__BackingField: {r: 0, g: 0, b: 0, a: 0}
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 8921243727803880716, guid: 87595706d6ab248b795a07bb40c9ce00, type: 3}
-    <Image>k__BackingField: {fileID: 21300000, guid: 3494dc956dfd7174abc07060940a2848, type: 3}
+    <Image>k__BackingField: {fileID: 21300000, guid: b35b91ce0622e443f9be360813e7e3fb, type: 3}
     <Category>k__BackingField: 0

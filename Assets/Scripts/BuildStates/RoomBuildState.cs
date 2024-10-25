@@ -85,7 +85,7 @@ public class RoomBuildState : IBuildingState
         }
     }
 
-    public void Rotate90DegreesCW()
+    public void Rotate90DegreesCCW()
     {
         throw new NotImplementedException();
     }

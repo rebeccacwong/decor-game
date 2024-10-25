@@ -223,6 +223,8 @@ public class PlacementSystem : MonoBehaviour
             return;
         }
 
+        inputManager.OnItemHold -= StartEditExistingStructureIfPossible;
+
         Debug.Log($"Start editing {structure}");
         gridVisualization.SetActive(true);
 
@@ -238,7 +240,6 @@ public class PlacementSystem : MonoBehaviour
         inputManager.OnClicked += ModifyExistingStructure;
         inputManager.OnEscape += CancelEditingExistingStructure;
         inputManager.OnDelete += EndBuildState;
-        inputManager.OnItemHold -= StartEditExistingStructureIfPossible;
     }
 
     /*
@@ -299,7 +300,7 @@ public class PlacementSystem : MonoBehaviour
         Vector3 mousePosition = inputManager.GetSelectedMapPosition();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
 
-        buildingState.Rotate90DegreesCW();
+        buildingState.Rotate90DegreesCCW();
         buildingState.UpdateState(gridPosition);
     }
     #endregion

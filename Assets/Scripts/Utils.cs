@@ -33,6 +33,8 @@ public static class Utils
     {
         Vector3 snapped = gridPosition;
 
+        // TODO: FIX ISSUES WITH THIS ON 1 x 2 objSize rotation
+
         if (objSize.x % 2 != 0)
         {
             // We'll need to place it on a grid boundary

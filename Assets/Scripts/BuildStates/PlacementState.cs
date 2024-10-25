@@ -93,7 +93,7 @@ public class PlacementState : IBuildingState
         return selectedData.CanPlaceObjectAt(worldPosition, updatedObjectSize, grid);
     }
 
-    public void UpdateState(Vector3Int gridPosition)
+public void UpdateState(Vector3Int gridPosition)
     {
         Vector3 snappedWorldPos = Utils.GetWorldPosForObjWhenSnapped(gridPosition, grid, updatedObjectSize);
 
@@ -106,9 +106,9 @@ public class PlacementState : IBuildingState
         throw new NotImplementedException();
     }
 
-    public void Rotate90DegreesCW()
+    public void Rotate90DegreesCCW()
     {
-        var output = previewSystem.UpdatePreviewRotation90DegCW();
+        var output = previewSystem.UpdatePreviewRotation90DegCCW();
         updatedObjectSize = output.Item1;
         itemRotation = output.Item2;
     }

@@ -9,7 +9,8 @@ public class CameraSystem : MonoBehaviour
 {
     #region Fixed Parameters
     private static float moveSpeed = 3f;
-    private static float rotationSpeed = 25f;
+    private static float minRotationSpeed = 15f;
+    private static float maxRotationSpeed = 50f;
     private static float fieldOfViewMax = 50f;
     private static float fieldOfViewMin = 20f;
     private static float zoomSpeed = 15f;
@@ -142,7 +143,9 @@ public class CameraSystem : MonoBehaviour
     private void HandleCameraRotation()
     {
         Vector2 currMousePos = (Vector2)Input.mousePosition;
-        float rotation = rotationSpeed * Time.deltaTime;
+        float mouseDiff = Mathf.Abs(currMousePos.x - lastMousePosition.x);
+
+        float rotation = Mathf.Lerp(minRotationSpeed, maxRotationSpeed, mouseDiff / Screen.width)  * Time.deltaTime;
 
         if (currMousePos.x > lastMousePosition.x)
         {

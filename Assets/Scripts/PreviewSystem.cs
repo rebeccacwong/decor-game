@@ -21,11 +21,6 @@ public class PreviewSystem : MonoBehaviour
     private GameObject previewObject;
     private ItemData previewItemData;
 
-    // TODO: Show cellIndicator in FRONT of the placed objects
-
-    // The offset to place the cellIndicator in the center of the cell.
-    private Vector3 cellIndicatorOffset = new Vector3(0.5f, 0f, 0.5f);
-
     private void Start()
     {
         previewMaterialInstance = new Material(previewMaterialsPrefab);
@@ -35,7 +30,7 @@ public class PreviewSystem : MonoBehaviour
         Debug.Assert(cellIndicatorRenderer != null);
     }
 
-    public void StartShowingPlacementPreview(GameObject prefab, Vector2Int objSize, bool showTransparent)
+    public void StartShowingPlacementPreview(GameObject prefab, Vector2Int objSize, bool showTransparent = true, int objRotation = 0)
     {
         Debug.Log("Start showing preview");
         previewObject = Instantiate(prefab);
@@ -48,6 +43,9 @@ public class PreviewSystem : MonoBehaviour
         previewItemData = previewObject.GetComponent<ItemData>();
         Debug.Assert(previewItemData != null, $"GameObject {previewObject} needs an ItemData component.");
         previewItemData.setObjectSize(objSize);
+
+        RotatePreviewObj(objRotation);
+        rotation = objRotation;
 
         PrepareCursor(objSize);
         cellIndicator.SetActive(true);
@@ -99,9 +97,7 @@ public class PreviewSystem : MonoBehaviour
     public void UpdatePositionAndSizeOfPreview(Vector3 centerWorldPos, bool isPositionValid, Vector2Int objSize)
     {
         MovePreviewObject(centerWorldPos);
-
         Utils.ScaleRoom(previewObject, centerWorldPos, objSize);
-
         PrepareCursor(objSize);
         MoveCursor(centerWorldPos);
         ApplyFeedback(isPositionValid);
@@ -123,15 +119,20 @@ public class PreviewSystem : MonoBehaviour
         cellIndicator.transform.position = worldPos;
     }
 
-    public (Vector2Int, int) UpdatePreviewRotation90DegCW()
+    public (Vector2Int, int) UpdatePreviewRotation90DegCCW()
     {
         rotation = (rotation + 90) % 360;
         previewItemData.UpdateItemDataAccordingToRotation(rotation);
 
-        previewObject.transform.Rotate(0, 0, 90f);
-        cellIndicator.transform.Rotate(0, 90f, 0);
+        RotatePreviewObj(90);
 
         return (previewItemData.getObjectSize(), rotation);
+    }
+
+    private void RotatePreviewObj(int degrees)
+    {
+        previewObject.transform.Rotate(0, 0, degrees);
+        cellIndicator.transform.Rotate(0, degrees, 0);
     }
 
     public GameObject GetPreviewObject()

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEditor.Progress;
 
 public class EditingState : IBuildingState
@@ -67,7 +68,8 @@ public class EditingState : IBuildingState
         previewSystem.StartShowingPlacementPreview(
             database.objectsData[itemId].Prefab,
             updatedObjectSize,
-            false);
+            false,
+            itemRotation);
 
         previewSystem.UpdatePositionOfPreview(initialWorldPos, true);
     }
@@ -119,7 +121,6 @@ public class EditingState : IBuildingState
     public void UpdateState(Vector3Int gridPosition)
     {
         Vector3 snappedWorldPos = Utils.GetWorldPosForObjWhenSnapped(gridPosition, grid, updatedObjectSize);
-        Debug.Log($"Grid position {gridPosition} snapped to {snappedWorldPos}");
 
         bool canPlace = CanPlaceStructure(snappedWorldPos);
         previewSystem.UpdatePositionOfPreview(snappedWorldPos, canPlace);
@@ -130,9 +131,9 @@ public class EditingState : IBuildingState
         throw new NotImplementedException();
     }
 
-    public void Rotate90DegreesCW()
+    public void Rotate90DegreesCCW()
     {
-        var output = previewSystem.UpdatePreviewRotation90DegCW();
+        var output = previewSystem.UpdatePreviewRotation90DegCCW();
         updatedObjectSize = output.Item1;
         itemRotation = output.Item2;
     }

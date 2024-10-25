@@ -7,5 +7,5 @@ public interface IBuildingState
     void OnEscapeAction();
     void UpdateState(Vector3Int gridPosition);
     void OnMouseUpAction(Vector3Int gridPosition);
-    void Rotate90DegreesCW();
+    void Rotate90DegreesCCW();
 }
