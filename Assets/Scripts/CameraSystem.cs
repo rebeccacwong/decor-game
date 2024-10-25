@@ -8,9 +8,8 @@ using static UnityEditor.FilePathAttribute;
 public class CameraSystem : MonoBehaviour
 {
     #region Fixed Parameters
-    private static float moveSpeed = 3f;
-    private static float minRotationSpeed = 15f;
-    private static float maxRotationSpeed = 50f;
+    private static float moveSpeed = 5f;
+    private static float rotationSpeed = 55f;
     private static float fieldOfViewMax = 50f;
     private static float fieldOfViewMin = 20f;
     private static float zoomSpeed = 15f;
@@ -144,21 +143,23 @@ public class CameraSystem : MonoBehaviour
     {
         Vector2 currMousePos = (Vector2)Input.mousePosition;
         float mouseDiff = Mathf.Abs(currMousePos.x - lastMousePosition.x);
+        int mouseDiffThreshold = 2;
 
-        float rotation = Mathf.Lerp(minRotationSpeed, maxRotationSpeed, mouseDiff / Screen.width)  * Time.deltaTime;
+        if (mouseDiff <= mouseDiffThreshold)
+        {
+            return;
+        }
+        float rotation = rotationSpeed * Time.deltaTime;
 
         if (currMousePos.x > lastMousePosition.x)
         {
             // swipe left to right
             rotation *= -1;
         }
-
-        if (currMousePos.x != lastMousePosition.x)
-        {
-            transform.Rotate(0, rotation, 0);
-        }
+        transform.Rotate(0, rotation, 0);
         lastMousePosition = currMousePos;
     }
+
 
     private void HandleCameraZoom()
     {
